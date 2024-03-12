@@ -1,16 +1,41 @@
-pub fn reverse_array<T: Copy>(arr: &mut [T]) {
-	reverse_array_inner(arr, 0, arr.len() - 1);
-}
+use super::InPlaceSliceOperations;
 
-fn reverse_array_inner<T: Copy>(arr: &mut [T], i: usize, j: usize) {
-	if i < j {
-		swap(arr, i, j);
-		reverse_array_inner(arr, i + 1, j - 1);
+impl<T: Copy> InPlaceSliceOperations for [T] {
+	fn reverse_in_place(self: &mut Self) {
+		#[inline]
+		fn reverse_inner<T: Copy>(slice: &mut [T], i: usize, j: usize) {
+			if i < j {
+				slice.swap_in_place(i, j);
+				reverse_inner(slice, i + 1, j - 1);
+			}
+		}
+		reverse_inner(self, 0, self.len() - 1);
+	}
+
+	fn swap_in_place(self: &mut Self, i: usize, j: usize) {
+		let temp = self[i];
+		self[i] = self[j];
+		self[j] = temp;
 	}
 }
 
-fn swap<T: Copy>(arr: &mut [T], i: usize, j: usize) {
-	let temp = arr[i];
-	arr[i] = arr[j];
-	arr[j] = temp;
+impl<T: Copy + AsMut<[T]>> InPlaceSliceOperations for T {
+	fn reverse_in_place(&mut self) {
+		#[inline]
+		fn reverse_inner<T: Copy>(slice: &mut [T], i: usize, j: usize) {
+			if i < j {
+				slice.swap_in_place(i, j);
+				reverse_inner(slice, i + 1, j - 1);
+			}
+		}
+		let slice = self.as_mut();
+		reverse_inner(slice, 0, slice.len() - 1);
+	}
+
+	fn swap_in_place(&mut self, i: usize, j: usize) {
+		let slice = self.as_mut();
+		let temp = slice[i];
+		slice[i] = slice[j];
+		slice[j] = temp;
+	}
 }
