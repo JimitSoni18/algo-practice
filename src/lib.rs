@@ -1,4 +1,4 @@
-mod int_array;
-mod slice;
+pub mod int_array;
+pub mod slice;
 
 pub use slice::*;

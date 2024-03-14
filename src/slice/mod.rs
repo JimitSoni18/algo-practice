@@ -1,3 +1,5 @@
+mod search;
+
 pub trait InPlaceSliceOperations {
 	type Item;
 	fn reverse_in_place(&mut self);
