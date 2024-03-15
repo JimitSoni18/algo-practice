@@ -25,33 +25,34 @@ impl<T: Eq> SearchSlice for [T] {
 		return index;
 	}
 
-	// FIXME: BOTCHED IMPLEMENTATION, NEED TO REIMPLEMENT,
-	// `mid` CALCULATED INCORRECTLY
 	fn binary_search_recursive(&self, elem: &Self::Item) -> isize
 	where
 		Self::Item: Ord,
 	{
 		fn binary_search_inner<T: Ord>(slice: &[T], start: usize, end: usize, elem: &T) -> isize {
-			let len = end - start;
-			let mid = (len + (len % 2)) / 2;
+			if start > end {
+				return -1;
+			} else if start == end {
+				if *elem == slice[start] {
+					return start as isize;
+				}
+				return -1;
+			}
+			let len = end - start + 1;
+			let mid = start + (len - (len % 2)) / 2;
 
-			// if len == 1 {
-			// 	if self[]
-			// }
-			// println!("=>> what is mid: {mid}, len: {len}");
-
-			if slice[mid] == *elem {
+			if *elem == slice[mid] {
 				return mid as isize;
-			} else if slice[mid] < *elem {
+			} else if *elem > slice[mid] {
 				return binary_search_inner(slice, mid + 1, end, elem);
-			} else if slice[mid] > *elem {
+			} else if *elem < slice[mid] {
 				return binary_search_inner(slice, start, mid - 1, elem);
 			} else {
 				panic!("wtf");
 			}
 		}
 
-		return binary_search_inner(self, 0, self.len(), elem);
+		binary_search_inner(self, 0, self.len() - 1, elem)
 	}
 }
 
@@ -64,8 +65,24 @@ mod tests {
 		let slice = &[1, 3, 5, 7, 8];
 
 		let ind = slice.binary_search_recursive(&7);
-
 		assert_eq!(ind, 3);
+
+		let ind = slice.binary_search_recursive(&8);
+		assert_eq!(ind, 4);
+
+		let ind = slice.binary_search_recursive(&1);
+		assert_eq!(ind, 0);
+
+		let slice = &[1, 4, 6, 7, 8, 9];
+
+		let ind = slice.binary_search_recursive(&9);
+		assert_eq!(ind, 5);
+
+		let ind = slice.binary_search_recursive(&1);
+		assert_eq!(ind, 0);
+
+		let ind = slice.binary_search_recursive(&8);
+		assert_eq!(ind, 4);
 	}
 
 	#[test]
@@ -73,9 +90,29 @@ mod tests {
 		let slice = &[1, 3, 5, 7, 8];
 
 		let ind = slice.binary_search_recursive(&9);
+		assert_eq!(ind, -1);
 
-		println!("=>> got index: {ind}");
+		let ind = slice.binary_search_recursive(&0);
+		assert_eq!(ind, -1);
 
+		let ind = slice.binary_search_recursive(&2);
+		assert_eq!(ind, -1);
+
+		let slice = &[2, 6, 7, 8, 23, 24, 26];
+
+		let ind = slice.binary_search_recursive(&0);
+		assert_eq!(ind, -1);
+
+		let ind = slice.binary_search_recursive(&5);
+		assert_eq!(ind, -1);
+
+		let ind = slice.binary_search_recursive(&9);
+		assert_eq!(ind, -1);
+
+		let ind = slice.binary_search_recursive(&25);
+		assert_eq!(ind, -1);
+
+		let ind = slice.binary_search_recursive(&33);
 		assert_eq!(ind, -1);
 	}
 }

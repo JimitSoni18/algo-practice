@@ -68,6 +68,16 @@ pub fn slice_union<T: Ord + Eq + Copy>(arr1: &[T], arr2: &[T]) -> Vec<T> {
 	return union;
 }
 
+// pub fn find_missing_number(arr: &[usize]) -> usize {
+// 	let proxy = arr.clone().sort();
+
+// 	fn binary_search_inner(arr: &[usize], start: usize, end: usize) -> usize {
+// 		let len = end - start;
+
+// 		todo!()
+// 	}
+// }
+
 pub trait NumArrayInPlaceOperations {
 	fn move_zeros_to_end(&mut self);
 }
@@ -78,42 +88,35 @@ impl NumArrayInPlaceOperations for [u32] {
 	fn move_zeros_to_end(&mut self) {
 		let len = self.len();
 		// OLD IMPLEMENTATION
-		let mut current = 0;
+		// let mut current = 0;
 
-		for _ in 0..len {
-			println!("=>> current for {current}");
-			if self[current] == 0 {
-				self[current..].rotate_slice_in_place_left(1);
-			} else {
-				current += 1;
-			}
-		}
-		// let mut j = 0;
-		// let mut i = 0;
-
-		// while i <= len {
-		// 	while j < len && self[j] != 0 {
-		// 		j += 1;
-		// 		println!("=>> j is {j}");
-		// 	}
-
-		// 	if j == len {
-		// 		if self[j] == 0 {
-		// 			return;
-		// 		} else {
-		// 			self.swap_in_place(i, j);
-		// 		}
+		// for _ in 0..len {
+		// 	println!("=>> current for {current}");
+		// 	if self[current] == 0 {
+		// 		self[current..].rotate_slice_in_place_left(1);
 		// 	} else {
-		// 		self.swap_in_place(i, j);
-		// 		// return;
-		// 	}
-
-		// 	if self[i] != 0 {
-		// 		self.swap_in_place(i, j);
+		// 		current += 1;
 		// 	}
 		// }
 
-		// todo!();
+		let mut i = 0;
+		let mut j = 0;
+
+		while j < len {
+			while self[j] != 0 {
+				j += 1;
+			}
+			if j == len - 1 {
+				if self[j] != 0 {
+					self.swap_in_place(i, j);
+				}
+				return;
+			}
+			i = j + 1;
+			if self[i] != 0 {
+				self.swap_in_place(i, j);
+			}
+		}
 	}
 }
 
