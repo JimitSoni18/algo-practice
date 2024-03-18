@@ -1,4 +1,5 @@
 use core::panic;
+use std::collections::HashMap;
 
 use crate::InPlaceSliceOperations;
 
@@ -116,6 +117,10 @@ pub fn find_missing_number(arr: &[usize]) -> usize {
 
 pub trait NumArrayInPlaceOperations {
 	fn move_zeros_to_end(&mut self);
+	fn max_consecutive_ones(&self) -> usize;
+	fn length_of_longest_subarray_with_sum(&self, k: u32) -> usize;
+	fn dutch_national_flag_problem(&mut self);
+	fn find_majority_element(&self) -> usize;
 }
 
 impl NumArrayInPlaceOperations for [u32] {
@@ -173,6 +178,132 @@ impl NumArrayInPlaceOperations for [u32] {
 			}
 		}
 	}
+
+	fn max_consecutive_ones(&self) -> usize {
+		let mut local_maxima = 0;
+		let mut global_maxima = 0;
+
+		let mut i = 0;
+		while i < self.len() {
+			if self[i] == 1 {
+				local_maxima += 1;
+				if local_maxima > global_maxima {
+					global_maxima = local_maxima;
+				}
+			} else if self[i] == 0 {
+				local_maxima = 0;
+			}
+
+			i += 1;
+		}
+
+		global_maxima
+	}
+
+	// TODO: USE OPTIMAL APPROACH
+	fn length_of_longest_subarray_with_sum(&self, k: u32) -> usize {
+		let mut global_count = 0;
+
+		let len = self.len();
+
+		for i in 0..len {
+			let mut sum = 0;
+			let mut j = i;
+			while j < len && sum <= k {
+				sum += self[j];
+
+				if sum == k {
+					let f = j - i + 1;
+					if f > global_count {
+						global_count = f;
+					}
+					// skips other unnecessary iterations
+					break;
+				}
+
+				j += 1;
+			}
+		}
+
+		global_count
+	}
+
+	fn dutch_national_flag_problem(&mut self) {
+		let len = self.len();
+		let (mut i, mut j, mut k) = (0, 0, len - 1);
+		while j <= k {
+			// if self[j] == 0 {
+			// 	self.swap_in_place(i, j);
+			// 	i += 1;
+			// 	j += 1;
+			// } else if self[j] == 1 {
+			// 	j += 1;
+			// } else if self[j] == 2 {
+			// 	self.swap_in_place(j, k);
+			// 	k -= 1;
+			// } else {
+			// 	panic!("wtf");
+			// }
+
+			match self[j] {
+				0 => {
+					self.swap_in_place(i, j);
+					i += 1;
+					j += 1;
+				}
+				1 => {
+					j += 1;
+				}
+				2 => {
+					self.swap_in_place(j, k);
+					k -= 1;
+				}
+				_ => {}
+			}
+		}
+	}
+
+	fn find_majority_element(&self) -> usize {
+		let mut hmap = HashMap::new();
+		for item in self {
+			if hmap.contains_key(item) {
+				if hmap.get(item).unwrap() == self.len() / 2 - 1 {
+					return item;
+				}
+				hmap.insert(item, hmap.get(item).unwrap() + 1);
+			} else {
+				hmap.insert(item, 1);
+			}
+		}
+
+		todo!()
+	}
+}
+
+// TODO: USE OPTIMAL APPROACH
+pub fn length_of_longest_subarray_with_sum_pos_neg(slice: &[i32], k: i32) -> usize {
+	let mut global_count = 0;
+
+	let len = slice.len();
+
+	for i in 0..len {
+		let mut sum = 0;
+		let mut j = i;
+		while j < len {
+			sum += slice[j];
+
+			if sum == k {
+				let f = j - i + 1;
+				if f > global_count {
+					global_count = f;
+				}
+			}
+
+			j += 1;
+		}
+	}
+
+	global_count
 }
 
 #[cfg(test)]
@@ -247,5 +378,83 @@ mod tests {
 		let arr = [9, 2, 6, 8, 1, 3, 5, 7, 4, 11];
 		let missing = find_missing_number(&arr);
 		assert_eq!(missing, 10);
+	}
+
+	#[test]
+	fn test_max_consecutive_ones() {
+		let arr = [1, 0, 1, 1, 1, 0, 0, 1, 1, 1, 1, 0, 0, 0, 1];
+
+		let a = arr.max_consecutive_ones();
+		assert_eq!(4, a);
+
+		// Empty array
+		let arr = [];
+		let expected = 0;
+		let actual = arr.max_consecutive_ones();
+		assert_eq!(expected, actual);
+
+		// Array with all ones
+		let arr = [1, 1, 1, 1, 1];
+		let expected = 5;
+		let actual = arr.max_consecutive_ones();
+		assert_eq!(expected, actual);
+
+		// Array with single one
+		let arr = [0, 1, 0];
+		let expected = 1;
+		let actual = arr.max_consecutive_ones();
+		assert_eq!(expected, actual);
+
+		// Array with multiple consecutive ones
+		let arr = [1, 0, 1, 1, 1, 0, 0, 1, 1, 1, 1, 0, 0, 0, 1];
+		let expected = 4;
+		let actual = arr.max_consecutive_ones();
+		assert_eq!(expected, actual);
+
+		// Array with ones at the end
+		let arr = [0, 0, 0, 1, 1, 1];
+		let expected = 3;
+		let actual = arr.max_consecutive_ones();
+		assert_eq!(expected, actual);
+	}
+
+	#[test]
+	fn test_len_longest_subarr() {
+		let arr = &[1, 3, 5, 7, 8, 9, 0, 2, 5, 6, 8, 2, 4, 5];
+		let s = arr.length_of_longest_subarray_with_sum(9);
+		assert_eq!(3, s);
+
+		let arr = &[2, 3, 1, 1, 0, 4, 1, 6, 8, 9];
+		let s = arr.length_of_longest_subarray_with_sum(6);
+		assert_eq!(4, s);
+
+		let arr = &[1, 0, 2, 1, 3, 4];
+		let s = arr.length_of_longest_subarray_with_sum(7);
+		assert_eq!(5, s);
+
+		let arr = &[3, 4, 1, 0, 2, 0, 8, 3];
+		let s = arr.length_of_longest_subarray_with_sum(9);
+		assert_eq!(0, s);
+
+		let arr = &[3, 4, 1, 0, 2, 9, 8, 3];
+		let s = arr.length_of_longest_subarray_with_sum(9);
+		assert_eq!(1, s);
+	}
+
+	// TODO: test with more cases
+	#[test]
+	fn test_len_longest_subarr_pos_neg() {
+		let arr = &[-1, 3, 5, -1, 8, 9, 0, 2, 5, 6, -8, 2, 4, 5];
+		let s = length_of_longest_subarray_with_sum_pos_neg(arr, 7);
+		println!("=>> what is s: {s}");
+		assert_eq!(6, s);
+	}
+
+	#[test]
+	fn test_dutch_national_flag() {
+		let mut arr = [1, 2, 0, 1, 1, 1, 0, 0, 2, 2, 0, 1];
+		arr.dutch_national_flag_problem();
+
+		assert!(arr.eq(&[0, 0, 0, 0, 1, 1, 1, 1, 1, 2, 2, 2]));
 	}
 }
