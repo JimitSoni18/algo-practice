@@ -34,6 +34,15 @@ impl<T: Copy> InPlaceSliceOperations for [T] {
 	/// Rotate the slice to right with time complexity O(n)
 	/// and space complexity O(n)
 	fn rotate_slice_in_place_right(&mut self, places: usize) {
+		let len = self.len();
+		if places == 1 {
+			let temp = self[len - 1];
+			for i in (1..len).rev() {
+				self[i] = self[i - 1];
+			}
+			self[0] = temp;
+			return;
+		}
 		let pivot = self.len() - places;
 		self[..pivot].reverse_in_place();
 		self[pivot..].reverse_in_place();
@@ -43,6 +52,15 @@ impl<T: Copy> InPlaceSliceOperations for [T] {
 	/// Rotate the slice to left with time complexity O(n)
 	/// and space complexity O(n)
 	fn rotate_slice_in_place_left(&mut self, places: usize) {
+		let len = self.len();
+		if places == 1 {
+			let temp = self[0];
+			for i in 0..len - 1 {
+				self[i] = self[i + 1];
+			}
+			self[len - 1] = temp;
+			return;
+		}
 		self[..places].reverse_in_place();
 		self[places..].reverse_in_place();
 

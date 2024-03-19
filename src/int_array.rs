@@ -3,6 +3,50 @@ use std::collections::HashMap;
 
 use crate::InPlaceSliceOperations;
 
+pub fn stock_buy_and_sell(arr: &[isize]) -> isize {
+	let mut max = arr[0];
+	let mut min = arr[0];
+	let mut global_sum = 0;
+
+	for &i in arr {
+		if i < min {
+			min = i;
+			max = i;
+		}
+		if i > max {
+			max = i;
+			global_sum = global_sum.max(max - min)
+		}
+	}
+	global_sum
+}
+
+pub fn rearrange_alt_sign(mut nums: Vec<i32>) -> Vec<i32> {
+	for i in 0..nums.len() {
+		if i % 2 == 0 {
+			if nums[i] < 0 {
+				let pos = nums[i..].iter().position(|&e| e >= 0);
+				if let Some(pos) = pos {
+					nums[i..i + pos + 1].rotate_slice_in_place_right(1);
+				} else {
+					return nums;
+				}
+			}
+		} else {
+			if nums[i] >= 0 {
+				let pos = nums[i..].iter().position(|&e| e < 0);
+				if let Some(pos) = pos {
+					nums[i..i + pos + 1].rotate_slice_in_place_right(1);
+				} else {
+					return nums;
+				}
+			}
+		}
+	}
+
+	nums
+}
+
 /// Unoptimized array union
 pub fn slice_union<T: Ord + Eq + Copy>(arr1: &[T], arr2: &[T]) -> Vec<T> {
 	let len1 = arr2.len();
@@ -264,17 +308,17 @@ impl NumArrayInPlaceOperations for [u32] {
 	}
 
 	fn find_majority_element(&self) -> usize {
-		let mut hmap = HashMap::new();
-		for item in self {
-			if hmap.contains_key(item) {
-				if hmap.get(item).unwrap() == self.len() / 2 - 1 {
-					return item;
-				}
-				hmap.insert(item, hmap.get(item).unwrap() + 1);
-			} else {
-				hmap.insert(item, 1);
-			}
-		}
+		// let mut hmap = HashMap::new();
+		// for item in self {
+		// 	if hmap.contains_key(item) {
+		// 		if hmap.get(item).unwrap() == self.len() / 2 - 1 {
+		// 			return item;
+		// 		}
+		// 		hmap.insert(item, hmap.get(item).unwrap() + 1);
+		// 	} else {
+		// 		hmap.insert(item, 1);
+		// 	}
+		// }
 
 		todo!()
 	}
@@ -456,5 +500,20 @@ mod tests {
 		arr.dutch_national_flag_problem();
 
 		assert!(arr.eq(&[0, 0, 0, 0, 1, 1, 1, 1, 1, 2, 2, 2]));
+	}
+
+	#[test]
+	fn test_max_profit() {
+		let arr = [1, 2, 1, 3, 4, 0, 7, 4];
+		let max_profit = stock_buy_and_sell(&arr);
+
+		println!("=>> max profit = {max_profit}");
+	}
+
+	#[test]
+	fn test_rearrange_sign() {
+		let arr = Vec::from([1, -2, -1, 2, 5, -3]);
+		let arr2 = rearrange_alt_sign(arr);
+		println!("=>> arr = {arr2:?}");
 	}
 }
