@@ -1,5 +1,4 @@
 use core::panic;
-use std::collections::HashMap;
 
 use crate::InPlaceSliceOperations;
 
@@ -21,30 +20,22 @@ pub fn stock_buy_and_sell(arr: &[isize]) -> isize {
 	global_sum
 }
 
-pub fn rearrange_alt_sign(mut nums: Vec<i32>) -> Vec<i32> {
-	for i in 0..nums.len() {
-		if i % 2 == 0 {
-			if nums[i] < 0 {
-				let pos = nums[i..].iter().position(|&e| e >= 0);
-				if let Some(pos) = pos {
-					nums[i..i + pos + 1].rotate_slice_in_place_right(1);
-				} else {
-					return nums;
-				}
-			}
+pub fn rearrange_alt_sign(nums: Vec<i32>) -> Vec<i32> {
+	let len = nums.len();
+	let mut arr = vec![0; len];
+	let mut pos_index = 0;
+	let mut neg_index = 1;
+	for i in nums {
+		if i < 0 {
+			arr[neg_index] = i;
+			neg_index += 2;
 		} else {
-			if nums[i] >= 0 {
-				let pos = nums[i..].iter().position(|&e| e < 0);
-				if let Some(pos) = pos {
-					nums[i..i + pos + 1].rotate_slice_in_place_right(1);
-				} else {
-					return nums;
-				}
-			}
+			arr[pos_index] = i;
+			pos_index += 2;
 		}
 	}
 
-	nums
+	arr
 }
 
 /// Unoptimized array union
