@@ -2,6 +2,21 @@ use core::panic;
 
 use crate::InPlaceSliceOperations;
 
+pub fn leaders_in_arr(arr: Vec<i32>) -> Vec<i32> {
+	let len = arr.len();
+	let last = arr[len - 1];
+	let mut greatest = last;
+	let mut result = Vec::new();
+	result.push(last);
+	for i in arr.into_iter().rev() {
+		if i > greatest {
+			greatest = i;
+			result.push(i);
+		}
+	}
+	result
+}
+
 pub fn stock_buy_and_sell(arr: &[isize]) -> isize {
 	let mut max = arr[0];
 	let mut min = arr[0];
@@ -503,8 +518,41 @@ mod tests {
 
 	#[test]
 	fn test_rearrange_sign() {
-		let arr = Vec::from([1, -2, -1, 2, 5, -3]);
+		let arr = vec![1, -2, -1, 2, 5, -3];
 		let arr2 = rearrange_alt_sign(arr);
 		println!("=>> arr = {arr2:?}");
+	}
+
+	#[test]
+	fn test_find_leaders() {
+		let fx_vec = vec![1, 2, 5, 3, 7, 9, 0];
+		let mut result = leaders_in_arr(fx_vec);
+		result.reverse();
+		println!("=>> {result:?}");
+		assert!(result.eq(&[9, 0]));
+
+		let fx_vec = vec![5];
+		let mut result = leaders_in_arr(fx_vec);
+		result.reverse();
+		println!("=>> {result:?}");
+		assert!(result.eq(&vec![5]));
+
+		let fx_vec = vec![10, 9, 8, 7];
+		let mut result = leaders_in_arr(fx_vec.clone());
+		result.reverse();
+		println!("=>> {result:?}");
+		assert!(result.eq(&fx_vec));
+
+		let fx_vec = vec![1, 2, 5, 3, 2, 7, 0];
+		let mut result = leaders_in_arr(fx_vec);
+		result.reverse();
+		println!("=>> {result:?}");
+		assert!(result.eq(&vec![7, 0]));
+
+		let fx_vec = vec![-2, 1, -5, 4, -3];
+		let mut result = leaders_in_arr(fx_vec);
+		result.reverse();
+		println!("=>> {result:?}");
+		assert!(result.eq(&vec![4, -3]));
 	}
 }
